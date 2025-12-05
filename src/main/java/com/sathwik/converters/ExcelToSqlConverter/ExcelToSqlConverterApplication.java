@@ -1,21 +1,19 @@
 package com.sathwik.converters.ExcelToSqlConverter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-@EnableScheduling
-public class ExcelToSqlConverterApplication {
+public class ExcelToSqlConverterApplication extends SpringBootServletInitializer {
 
-	private static final Logger logger = LoggerFactory.getLogger(ExcelToSqlConverterApplication.class);
-
-	public static void main(String[] args) {
-		logger.info("Starting Excel To SQL Converter Application");
-		SpringApplication.run(ExcelToSqlConverterApplication.class, args);
-		logger.info("Excel To SQL Converter Application started successfully");
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(ExcelToSqlConverterApplication.class);
 	}
 
+	public static void main(String[] args) {
+		SpringApplication.run(ExcelToSqlConverterApplication.class, args);
+	}
 }

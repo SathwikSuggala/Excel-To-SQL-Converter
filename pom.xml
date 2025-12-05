@@ -11,6 +11,7 @@
 	<groupId>com.sathwik.converters</groupId>
 	<artifactId>ExcelToSqlConverter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>ExcelToSqlConverter</name>
 	<description>A Project for converting excel sheet to sql insert query</description>
 	<url/>
@@ -70,6 +71,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>ExcelToSqlConverter-0.0.1-SNAPSHOT</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
