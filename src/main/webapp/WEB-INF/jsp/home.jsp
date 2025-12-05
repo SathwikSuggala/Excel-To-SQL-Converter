@@ -4,6 +4,8 @@
 <head>
     <title>Excel Converter - Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,28 +43,30 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .header p { color: #7f8c8d; font-size: 1.2rem; margin-bottom: 50px; }
-        .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
-        @media (min-width: 1024px) { .options { grid-template-columns: repeat(4, 1fr); } }
+        .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        @media (min-width: 768px) { .options { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px) { .options { grid-template-columns: repeat(5, 1fr); } }
         .option-card { 
-            background: #fff; border-radius: 15px; padding: 40px 30px;
+            background: #fff; border-radius: 15px; padding: 30px 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); cursor: pointer;
             transition: all 0.3s ease; text-decoration: none; color: inherit;
+            min-height: 150px; display: flex; flex-direction: column; align-items: center;
         }
         .option-card:hover { 
             transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             text-decoration: none; color: inherit;
         }
         .option-icon { 
-            width: 80px; height: 80px; border-radius: 20px; margin: 0 auto 20px;
+            width: 60px; height: 60px; border-radius: 15px; margin: 0 auto 15px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; color: white;
+            font-size: 2rem; color: white;
         }
         .sql-icon { background: linear-gradient(45deg, #4CAF50, #45a049); }
         .csv-icon { background: linear-gradient(45deg, #FF9800, #F57C00); }
         .json-icon { background: linear-gradient(45deg, #2196F3, #1976D2); }
         .xml-icon { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
-        .option-title { color: #2c3e50; font-size: 1.5rem; font-weight: 600; margin-bottom: 10px; }
-        .option-desc { color: #7f8c8d; font-size: 1rem; line-height: 1.5; }
+        .word-icon { background: linear-gradient(45deg, #FF5722, #D84315); }
+        .option-title { color: #2c3e50; font-size: 1.2rem; font-weight: 600; text-align: center; }
         @media (max-width: 768px) { 
             .options { grid-template-columns: 1fr; }
             .container { padding: 40px 20px; }
@@ -79,6 +83,7 @@
                 <a href="/csv-extractor"><i class="fas fa-file-csv"></i> CSV Extractor</a>
                 <a href="/json-viewer"><i class="fas fa-code"></i> JSON Viewer</a>
                 <a href="/xml-viewer"><i class="fas fa-file-code"></i> XML Viewer</a>
+                <a href="/word-processor"><i class="fas fa-file-word"></i> Word Processor</a>
             </div>
         </div>
     </nav>
@@ -95,16 +100,14 @@
                 <div class="option-icon sql-icon">
                     <i class="fas fa-database"></i>
                 </div>
-                <div class="option-title">SQL Insert Generator</div>
-                <div class="option-desc">Convert Excel data into SQL INSERT statements for database operations</div>
+                <div class="option-title">SQL Generator</div>
             </a>
             
             <a href="/csv-extractor" class="option-card">
                 <div class="option-icon csv-icon">
                     <i class="fas fa-file-csv"></i>
                 </div>
-                <div class="option-title">CSV Value Extractor</div>
-                <div class="option-desc">Extract specific rows from Excel files as comma-separated values</div>
+                <div class="option-title">CSV Extractor</div>
             </a>
             
             <a href="/json-viewer" class="option-card">
@@ -112,7 +115,6 @@
                     <i class="fas fa-code"></i>
                 </div>
                 <div class="option-title">JSON Viewer</div>
-                <div class="option-desc">Format, validate, and visualize JSON data with syntax highlighting</div>
             </a>
             
             <a href="/xml-viewer" class="option-card">
@@ -120,7 +122,13 @@
                     <i class="fas fa-file-code"></i>
                 </div>
                 <div class="option-title">XML Viewer</div>
-                <div class="option-desc">Format, validate, and explore XML documents with tree view</div>
+            </a>
+            
+            <a href="/word-processor" class="option-card">
+                <div class="option-icon word-icon">
+                    <i class="fas fa-file-word"></i>
+                </div>
+                <div class="option-title">Word Processor</div>
             </a>
         </div>
     </div>

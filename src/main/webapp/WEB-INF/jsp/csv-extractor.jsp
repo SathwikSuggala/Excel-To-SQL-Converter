@@ -4,6 +4,8 @@
 <head>
     <title>CSV Value Extractor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -96,6 +98,9 @@
             <div class="nav-links">
                 <a href="/sql-generator"><i class="fas fa-database"></i> SQL Generator</a>
                 <a href="/csv-extractor" class="active"><i class="fas fa-file-csv"></i> CSV Extractor</a>
+                <a href="/json-viewer"><i class="fas fa-code"></i> JSON Viewer</a>
+                <a href="/xml-viewer"><i class="fas fa-file-code"></i> XML Viewer</a>
+                <a href="/word-processor"><i class="fas fa-file-word"></i> Word Processor</a>
             </div>
         </div>
     </nav>

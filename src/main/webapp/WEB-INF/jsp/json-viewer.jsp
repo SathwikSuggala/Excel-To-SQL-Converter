@@ -4,6 +4,8 @@
 <head>
     <title>JSON Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -86,17 +88,37 @@
             font-family: 'Courier New', monospace; font-size: 13px;
             line-height: 1.6;
         }
-        .tree-key { color: #0066cc; font-weight: bold; }
-        .tree-string { color: #008000; }
-        .tree-number { color: #ff6600; }
-        .tree-boolean { color: #cc0066; }
-        .tree-null { color: #999; font-style: italic; }
+        .tree-key { color: var(--key-color, #0066cc); font-weight: bold; }
+        .tree-string { color: var(--string-color, #008000); }
+        .tree-number { color: var(--number-color, #ff6600); }
+        .tree-boolean { color: var(--boolean-color, #cc0066); }
+        .tree-null { color: var(--null-color, #999); font-style: italic; }
         .tree-bracket { color: #666; font-weight: bold; }
         .tree-indent { margin-left: 20px; }
         .json-children { margin-left: 20px; }
         .collapsible { cursor: pointer; user-select: none; }
         .collapsible:hover { background: #f0f0f0; }
         .collapsed { display: none; }
+        .color-picker-container {
+            display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
+            background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .color-option {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .color-option label {
+            font-size: 0.9rem; font-weight: 500; color: #495057;
+        }
+        .color-picker {
+            width: 40px; height: 30px; border: none; border-radius: 4px;
+            cursor: pointer; outline: none;
+        }
+        .reset-colors {
+            padding: 6px 12px; background: #6c757d; color: white;
+            border: none; border-radius: 4px; cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .reset-colors:hover { background: #5a6268; }
         @media (max-width: 768px) {
             .editor-container { grid-template-columns: 1fr; height: auto; }
             .toolbar { flex-direction: column; align-items: stretch; }
@@ -113,6 +135,7 @@
                 <a href="/csv-extractor"><i class="fas fa-file-csv"></i> CSV Extractor</a>
                 <a href="/json-viewer" class="active"><i class="fas fa-code"></i> JSON Viewer</a>
                 <a href="/xml-viewer"><i class="fas fa-file-code"></i> XML Viewer</a>
+                <a href="/word-processor"><i class="fas fa-file-word"></i> Word Processor</a>
             </div>
         </div>
     </nav>
@@ -122,6 +145,30 @@
             <div class="header">
                 <h1><i class="fas fa-code"></i> JSON Viewer & Formatter</h1>
                 <p>Format, validate, and visualize JSON data</p>
+            </div>
+            
+            <div class="color-picker-container">
+                <div class="color-option">
+                    <label for="keyColor">Keys:</label>
+                    <input type="color" id="keyColor" class="color-picker" value="#0066cc" onchange="updateColor('key', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="stringColor">Strings:</label>
+                    <input type="color" id="stringColor" class="color-picker" value="#008000" onchange="updateColor('string', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="numberColor">Numbers:</label>
+                    <input type="color" id="numberColor" class="color-picker" value="#ff6600" onchange="updateColor('number', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="booleanColor">Booleans:</label>
+                    <input type="color" id="booleanColor" class="color-picker" value="#cc0066" onchange="updateColor('boolean', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="nullColor">Null:</label>
+                    <input type="color" id="nullColor" class="color-picker" value="#999999" onchange="updateColor('null', this.value)">
+                </div>
+                <button class="reset-colors" onclick="resetColors()">Reset Colors</button>
             </div>
             
             <div class="toolbar">
@@ -214,7 +261,7 @@
             try {
                 jsonData = JSON.parse(input);
                 const formatted = JSON.stringify(jsonData, null, 2);
-                document.getElementById('output').textContent = formatted;
+                document.getElementById('output').innerHTML = syntaxHighlight(formatted);
                 document.getElementById('validationStatus').innerHTML = '<span class="valid"><i class="fas fa-check"></i> Valid JSON</span>';
                 document.getElementById('outputInfo').textContent = 'Formatted successfully';
                 updateOutputStats(formatted);
@@ -249,7 +296,7 @@
             try {
                 const parsed = JSON.parse(input);
                 const minified = JSON.stringify(parsed);
-                document.getElementById('output').textContent = minified;
+                document.getElementById('output').innerHTML = syntaxHighlight(minified);
                 document.getElementById('outputInfo').textContent = 'Minified successfully';
                 updateOutputStats(minified);
                 currentView = 'formatted';
@@ -272,7 +319,7 @@
                 document.getElementById('viewToggle').textContent = 'JSON View';
             } else {
                 const formatted = JSON.stringify(jsonData, null, 2);
-                document.getElementById('output').textContent = formatted;
+                document.getElementById('output').innerHTML = syntaxHighlight(formatted);
                 currentView = 'formatted';
                 document.getElementById('viewToggle').textContent = 'Tree View';
             }
@@ -431,6 +478,61 @@
             const byteSize = new Blob([output]).size;
             document.getElementById('outputSize').textContent = 'Size: ' + byteSize + ' bytes';
         }
+
+        function updateColor(type, color) {
+            document.documentElement.style.setProperty('--' + type + '-color', color);
+            // Save to localStorage
+            localStorage.setItem('json-' + type + '-color', color);
+        }
+
+        function resetColors() {
+            const defaults = {
+                key: '#0066cc',
+                string: '#008000',
+                number: '#ff6600',
+                boolean: '#cc0066',
+                null: '#999999'
+            };
+            
+            Object.keys(defaults).forEach(type => {
+                document.documentElement.style.setProperty('--' + type + '-color', defaults[type]);
+                document.getElementById(type + 'Color').value = defaults[type];
+                localStorage.removeItem('json-' + type + '-color');
+            });
+        }
+
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'tree-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'tree-key';
+                    } else {
+                        cls = 'tree-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'tree-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'tree-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function loadSavedColors() {
+            const types = ['key', 'string', 'number', 'boolean', 'null'];
+            types.forEach(type => {
+                const savedColor = localStorage.getItem('json-' + type + '-color');
+                if (savedColor) {
+                    document.documentElement.style.setProperty('--' + type + '-color', savedColor);
+                    document.getElementById(type + 'Color').value = savedColor;
+                }
+            });
+        }
+
+        // Load saved colors on page load
+        loadSavedColors();
 
         // Sample JSON for demo
         document.getElementById('jsonInput').value = `{

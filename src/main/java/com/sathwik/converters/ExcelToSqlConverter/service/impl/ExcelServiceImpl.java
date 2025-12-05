@@ -1,22 +1,31 @@
 package com.sathwik.converters.ExcelToSqlConverter.service.impl;
 
 import com.sathwik.converters.ExcelToSqlConverter.service.ExcelService;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ExcelServiceImpl implements ExcelService {
 
-    private final DataFormatter dataFormatter = new DataFormatter(); // <-- Add this
+    private static final Logger logger = LoggerFactory.getLogger(ExcelServiceImpl.class);
+    private final DataFormatter dataFormatter = new DataFormatter();
 
     @Override
     public String getInsertQuery(String tableName, MultipartFile file) {
+        logger.info("Starting SQL insert query generation for table: {}", tableName);
         try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
 
             Sheet sheet = workbook.getSheetAt(0);
@@ -72,9 +81,11 @@ public class ExcelServiceImpl implements ExcelService {
                     .append(String.join(",\n", valueRows))
                     .append(";");
 
+            logger.info("Successfully generated SQL insert query with {} rows", valueRows.size());
             return sql.toString();
 
         } catch (IOException e) {
+            logger.error("Error processing Excel file for SQL generation: {}", e.getMessage());
             e.printStackTrace();
         }
 
@@ -83,6 +94,7 @@ public class ExcelServiceImpl implements ExcelService {
 
     // Function to get values from 3rd column as comma-separated string
     public String getThirdColumnValues(MultipartFile file, int start, int end) {
+        logger.info("Extracting CSV values from rows {} to {}", start, end);
         StringBuilder result = new StringBuilder();
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
@@ -123,8 +135,11 @@ public class ExcelServiceImpl implements ExcelService {
                 }
             }
         }catch (IOException e) {
+            logger.error("Error extracting CSV values: {}", e.getMessage());
             e.printStackTrace();
         }
+        
+        logger.info("Successfully extracted CSV values");
 
         // Remove trailing comma if exists
         if (result.length() > 0 && result.charAt(result.length() - 1) == ',') {
@@ -132,5 +147,69 @@ public class ExcelServiceImpl implements ExcelService {
         }
 
         return result.toString();
+    }
+
+    @Override
+    public Map<Integer, String> processWordDocument(MultipartFile file, String words) {
+        logger.info("Processing Word document: {}", file.getOriginalFilename());
+        try {
+            String content = extractTextFromWord(file);
+            List<String> wordList = Arrays.stream(words.split(","))
+                    .map(String::trim)
+                    .filter(word -> !word.isEmpty())
+                    .collect(Collectors.toList());
+
+            Map<Integer, String> results = searchLinesByKeyWords(content, wordList);
+            logger.info("Found {} lines containing keywords", results.size());
+            return results;
+        } catch (Exception e) {
+            logger.error("Error processing Word document: {}", e.getMessage());
+            Map<Integer, String> errorMap = new LinkedHashMap<>();
+            errorMap.put(-1, "Error processing Word document: " + e.getMessage());
+            return errorMap;
+        }
+    }
+
+    private String extractTextFromWord(MultipartFile file) throws IOException {
+        String filename = file.getOriginalFilename();
+        
+        if (filename == null) {
+            throw new IOException("File name is null");
+        }
+        
+        if (filename.toLowerCase().endsWith(".docx")) {
+            try (XWPFDocument document = new XWPFDocument(file.getInputStream());
+                 XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
+                return extractor.getText();
+            }
+        } else if (filename.toLowerCase().endsWith(".doc")) {
+            try (HWPFDocument document = new HWPFDocument(file.getInputStream());
+                 WordExtractor extractor = new WordExtractor(document)) {
+                return extractor.getText();
+            }
+        } else {
+            throw new IOException("Unsupported file format. Please upload .doc or .docx files only.");
+        }
+    }
+
+    private Map<Integer, String> searchLinesByKeyWords(String content, List<String> words) {
+        Map<Integer, String> result = new LinkedHashMap<>();
+        String[] lines = content.split("\n");
+        
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i].trim();
+            if (line.isEmpty()) continue;
+            
+            String lowerLine = line.toLowerCase();
+            
+            for (String word : words) {
+                if (lowerLine.contains(word.toLowerCase())) {
+                    result.put(i + 1, line);
+                    break;
+                }
+            }
+        }
+        
+        return result;
     }
 }

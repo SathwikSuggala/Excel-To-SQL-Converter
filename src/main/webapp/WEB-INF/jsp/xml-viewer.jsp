@@ -4,6 +4,8 @@
 <head>
     <title>XML Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -86,11 +88,11 @@
             font-family: 'Courier New', monospace; font-size: 13px;
             line-height: 1.6;
         }
-        .xml-tag { color: #0066cc; font-weight: bold; }
-        .xml-attr-name { color: #cc6600; }
-        .xml-attr-value { color: #008000; }
-        .xml-text { color: #333; }
-        .xml-comment { color: #999; font-style: italic; }
+        .xml-tag { color: var(--xml-tag-color, #0066cc); font-weight: bold; }
+        .xml-attr-name { color: var(--xml-attr-name-color, #cc6600); }
+        .xml-attr-value { color: var(--xml-attr-value-color, #008000); }
+        .xml-text { color: var(--xml-text-color, #333); }
+        .xml-comment { color: var(--xml-comment-color, #999); font-style: italic; }
         .xml-indent { margin-left: 20px; }
         .xml-children { margin-left: 20px; }
         .collapsible { cursor: pointer; user-select: none; }
@@ -100,6 +102,26 @@
             width: 200px; padding: 6px; border: 1px solid #ddd;
             border-radius: 4px; font-size: 0.9rem;
         }
+        .color-picker-container {
+            display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
+            background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .color-option {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .color-option label {
+            font-size: 0.9rem; font-weight: 500; color: #495057;
+        }
+        .color-picker {
+            width: 40px; height: 30px; border: none; border-radius: 4px;
+            cursor: pointer; outline: none;
+        }
+        .reset-colors {
+            padding: 6px 12px; background: #6c757d; color: white;
+            border: none; border-radius: 4px; cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .reset-colors:hover { background: #5a6268; }
         @media (max-width: 768px) {
             .editor-container { grid-template-columns: 1fr; height: auto; }
             .toolbar { flex-direction: column; align-items: stretch; }
@@ -116,6 +138,7 @@
                 <a href="/csv-extractor"><i class="fas fa-file-csv"></i> CSV Extractor</a>
                 <a href="/json-viewer"><i class="fas fa-code"></i> JSON Viewer</a>
                 <a href="/xml-viewer" class="active"><i class="fas fa-file-code"></i> XML Viewer</a>
+                <a href="/word-processor"><i class="fas fa-file-word"></i> Word Processor</a>
             </div>
         </div>
     </nav>
@@ -125,6 +148,30 @@
             <div class="header">
                 <h1><i class="fas fa-file-code"></i> XML Viewer & Formatter</h1>
                 <p>Format, validate, and explore XML documents</p>
+            </div>
+            
+            <div class="color-picker-container">
+                <div class="color-option">
+                    <label for="xmlTagColor">Tags:</label>
+                    <input type="color" id="xmlTagColor" class="color-picker" value="#0066cc" onchange="updateXmlColor('xml-tag', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="xmlAttrNameColor">Attributes:</label>
+                    <input type="color" id="xmlAttrNameColor" class="color-picker" value="#cc6600" onchange="updateXmlColor('xml-attr-name', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="xmlAttrValueColor">Values:</label>
+                    <input type="color" id="xmlAttrValueColor" class="color-picker" value="#008000" onchange="updateXmlColor('xml-attr-value', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="xmlTextColor">Text:</label>
+                    <input type="color" id="xmlTextColor" class="color-picker" value="#333333" onchange="updateXmlColor('xml-text', this.value)">
+                </div>
+                <div class="color-option">
+                    <label for="xmlCommentColor">Comments:</label>
+                    <input type="color" id="xmlCommentColor" class="color-picker" value="#999999" onchange="updateXmlColor('xml-comment', this.value)">
+                </div>
+                <button class="reset-colors" onclick="resetXmlColors()">Reset Colors</button>
             </div>
             
             <div class="toolbar">
@@ -231,7 +278,7 @@
                 }
 
                 const formatted = formatXmlString(input);
-                document.getElementById('output').textContent = formatted;
+                document.getElementById('output').innerHTML = syntaxHighlightXml(formatted);
                 document.getElementById('validationStatus').innerHTML = '<span class="valid"><i class="fas fa-check"></i> Valid XML</span>';
                 document.getElementById('outputInfo').textContent = 'Formatted successfully';
                 updateOutputStats(formatted);
@@ -304,7 +351,7 @@
                 }
 
                 const minified = input.replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim();
-                document.getElementById('output').textContent = minified;
+                document.getElementById('output').innerHTML = syntaxHighlightXml(minified);
                 document.getElementById('outputInfo').textContent = 'Minified successfully';
                 updateOutputStats(minified);
                 currentView = 'formatted';
@@ -327,7 +374,7 @@
                 document.getElementById('viewToggle').textContent = 'XML View';
             } else {
                 const formatted = formatXmlString(document.getElementById('xmlInput').value);
-                document.getElementById('output').textContent = formatted;
+                document.getElementById('output').innerHTML = syntaxHighlightXml(formatted);
                 currentView = 'formatted';
                 document.getElementById('viewToggle').textContent = 'Tree View';
             }
@@ -485,7 +532,7 @@
             try {
                 const jsonObj = xmlToJson(xmlDoc.documentElement);
                 const jsonStr = JSON.stringify(jsonObj, null, 2);
-                document.getElementById('output').textContent = jsonStr;
+                document.getElementById('output').innerHTML = syntaxHighlightJson(jsonStr);
                 document.getElementById('outputInfo').textContent = 'Converted to JSON successfully';
                 updateOutputStats(jsonStr);
                 currentView = 'json';
@@ -582,6 +629,87 @@
             const byteSize = new Blob([output]).size;
             document.getElementById('outputSize').textContent = 'Size: ' + byteSize + ' bytes';
         }
+
+        function syntaxHighlightXml(xml) {
+            xml = xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // Highlight XML comments
+            xml = xml.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="xml-comment">$1</span>');
+            
+            // Highlight XML tags and attributes
+            xml = xml.replace(/(&lt;\/?)(\w+)([^&gt;]*?)(&gt;)/g, function(match, openBracket, tagName, attributes, closeBracket) {
+                let result = '<span class="xml-tag">' + openBracket + tagName + '</span>';
+                
+                // Highlight attributes within the tag
+                if (attributes.trim()) {
+                    attributes = attributes.replace(/(\s+)(\w+)(=)(["'][^"']*["'])/g, 
+                        '$1<span class="xml-attr-name">$2</span>$3<span class="xml-attr-value">$4</span>');
+                }
+                
+                result += attributes + '<span class="xml-tag">' + closeBracket + '</span>';
+                return result;
+            });
+            
+            return xml;
+        }
+
+        function syntaxHighlightJson(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'xml-text'; // Use xml-text for numbers
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'xml-tag'; // Use xml-tag for JSON keys
+                    } else {
+                        cls = 'xml-attr-value'; // Use xml-attr-value for JSON strings
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'xml-attr-name'; // Use xml-attr-name for booleans
+                } else if (/null/.test(match)) {
+                    cls = 'xml-comment'; // Use xml-comment for null
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function updateXmlColor(type, color) {
+            document.documentElement.style.setProperty('--' + type + '-color', color);
+            localStorage.setItem('xml-' + type + '-color', color);
+        }
+
+        function resetXmlColors() {
+            const defaults = {
+                'xml-tag': '#0066cc',
+                'xml-attr-name': '#cc6600',
+                'xml-attr-value': '#008000',
+                'xml-text': '#333333',
+                'xml-comment': '#999999'
+            };
+            
+            Object.keys(defaults).forEach(type => {
+                document.documentElement.style.setProperty('--' + type + '-color', defaults[type]);
+                const inputId = type.replace(/-/g, '') + 'Color';
+                const input = document.getElementById(inputId);
+                if (input) input.value = defaults[type];
+                localStorage.removeItem('xml-' + type + '-color');
+            });
+        }
+
+        function loadSavedXmlColors() {
+            const types = ['xml-tag', 'xml-attr-name', 'xml-attr-value', 'xml-text', 'xml-comment'];
+            types.forEach(type => {
+                const savedColor = localStorage.getItem('xml-' + type + '-color');
+                if (savedColor) {
+                    document.documentElement.style.setProperty('--' + type + '-color', savedColor);
+                    const inputId = type.replace(/-/g, '') + 'Color';
+                    const input = document.getElementById(inputId);
+                    if (input) input.value = savedColor;
+                }
+            });
+        }
+
+        // Load saved colors on page load
+        loadSavedXmlColors();
 
         // Sample XML for demo
         document.getElementById('xmlInput').value = `<?xml version="1.0" encoding="UTF-8"?>

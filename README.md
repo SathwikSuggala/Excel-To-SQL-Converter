@@ -65,3 +65,9 @@ This API accepts an Excel file (.xlsx) uploaded via a multipart form request and
 **Response:**
 - Returns SQL INSERT queries as plain text
 
+**Example:**
+```bash
+curl -X POST http://localhost:8081/getInsertQuery \
+  -F "file=@data.xlsx" \
+  -F "tableName=employees"
+```
