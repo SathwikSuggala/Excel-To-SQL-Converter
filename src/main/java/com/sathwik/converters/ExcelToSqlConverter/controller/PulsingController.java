@@ -1,16 +1,32 @@
 package com.sathwik.converters.ExcelToSqlConverter.controller;
 
 import com.sathwik.converters.ExcelToSqlConverter.shedulers.PulsingThread;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/api/v1")
 public class PulsingController {
+
+    @Value("${pulseServerUrl}")
+    private String pulseServerUrl;
+
+    private final RestTemplate restTemplate = new RestTemplate();
     
     private PulsingThread pulsingThread;
     private boolean isRunning = false;
+
+    @GetMapping("/pulse")
+    public ResponseEntity<?> pulser(){
+        String response = restTemplate.getForObject(pulseServerUrl, String.class);
+        System.out.println(response);
+        return new ResponseEntity<>("Converter server is running", HttpStatus.OK);
+    }
 
     @PostMapping("/pulse/start")
     public ResponseEntity<?> startPulse() {
