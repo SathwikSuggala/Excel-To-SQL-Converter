@@ -109,7 +109,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo"><i class="fas fa-file-excel"></i> Excel Converter</a>
+            <a href="/" class="logo"><i class="fas fa-file-excel"></i> Converters </a>
             <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">
                 <span></span><span></span><span></span>
             </div>

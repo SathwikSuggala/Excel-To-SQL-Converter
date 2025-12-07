@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Excel Converter - Home</title>
+    <title>Converters - Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -89,7 +89,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo"><i class="fas fa-file-excel"></i> Excel Converter</a>
+            <a href="/" class="logo"><i class="fas fa-file-excel"></i> Converters</a>
             <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">
                 <span></span><span></span><span></span>
             </div>
@@ -107,7 +107,7 @@
     <div class="main-content">
         <div class="container">
         <div class="header">
-            <h1><i class="fas fa-file-excel"></i> Excel Converter</h1>
+            <h1><i class="fas fa-file-excel"></i> Converters </h1>
             <p>Choose your conversion tool to get started</p>
         </div>
         

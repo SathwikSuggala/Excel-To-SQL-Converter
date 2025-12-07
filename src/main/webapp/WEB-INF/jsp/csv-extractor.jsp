@@ -94,7 +94,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo"><i class="fas fa-file-excel"></i> Excel Converter</a>
+            <a href="/" class="logo"><i class="fas fa-file-excel"></i> Converters </a>
             <div class="nav-links">
                 <a href="/sql-generator"><i class="fas fa-database"></i> SQL Generator</a>
                 <a href="/csv-extractor" class="active"><i class="fas fa-file-csv"></i> CSV Extractor</a>
