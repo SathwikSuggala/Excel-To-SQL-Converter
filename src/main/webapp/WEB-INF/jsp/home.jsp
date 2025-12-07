@@ -29,6 +29,18 @@
             transition: color 0.3s ease;
         }
         .nav-links a:hover { color: #f0f0f0; }
+        .hamburger { display: none; flex-direction: column; cursor: pointer; }
+        .hamburger span { width: 25px; height: 3px; background: white; margin: 3px 0; transition: 0.3s; }
+        @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .nav-links { 
+                position: fixed; top: 60px; right: -100%; flex-direction: column;
+                background: rgba(102, 126, 234, 0.98); width: 250px; padding: 20px;
+                box-shadow: -2px 0 10px rgba(0,0,0,0.2); transition: 0.3s;
+                height: calc(100vh - 60px);
+            }
+            .nav-links.active { right: 0; }
+        }
         .main-content { display: flex; align-items: center; justify-content: center; flex: 1; }
 
         .container { 
@@ -45,7 +57,6 @@
         .header p { color: #7f8c8d; font-size: 1.2rem; margin-bottom: 50px; }
         .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
         @media (min-width: 768px) { .options { grid-template-columns: repeat(3, 1fr); } }
-        @media (min-width: 1024px) { .options { grid-template-columns: repeat(5, 1fr); } }
         .option-card { 
             background: #fff; border-radius: 15px; padding: 30px 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); cursor: pointer;
@@ -64,6 +75,7 @@
         .sql-icon { background: linear-gradient(45deg, #4CAF50, #45a049); }
         .csv-icon { background: linear-gradient(45deg, #FF9800, #F57C00); }
         .json-icon { background: linear-gradient(45deg, #2196F3, #1976D2); }
+        .comparator-icon { background: linear-gradient(45deg, #00BCD4, #0097A7); }
         .xml-icon { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
         .word-icon { background: linear-gradient(45deg, #FF5722, #D84315); }
         .option-title { color: #2c3e50; font-size: 1.2rem; font-weight: 600; text-align: center; }
@@ -78,10 +90,14 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo"><i class="fas fa-file-excel"></i> Excel Converter</a>
+            <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">
+                <span></span><span></span><span></span>
+            </div>
             <div class="nav-links">
                 <a href="/sql-generator"><i class="fas fa-database"></i> SQL Generator</a>
                 <a href="/csv-extractor"><i class="fas fa-file-csv"></i> CSV Extractor</a>
                 <a href="/json-viewer"><i class="fas fa-code"></i> JSON Viewer</a>
+                <a href="/json-comparator"><i class="fas fa-code-compare"></i> JSON Comparator</a>
                 <a href="/xml-viewer"><i class="fas fa-file-code"></i> XML Viewer</a>
                 <a href="/word-processor"><i class="fas fa-file-word"></i> Word Processor</a>
             </div>
@@ -115,6 +131,13 @@
                     <i class="fas fa-code"></i>
                 </div>
                 <div class="option-title">JSON Viewer</div>
+            </a>
+            
+            <a href="/json-comparator" class="option-card">
+                <div class="option-icon comparator-icon">
+                    <i class="fas fa-code-compare"></i>
+                </div>
+                <div class="option-title">JSON Comparator</div>
             </a>
             
             <a href="/xml-viewer" class="option-card">

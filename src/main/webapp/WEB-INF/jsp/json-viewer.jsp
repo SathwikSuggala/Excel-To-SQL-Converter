@@ -30,6 +30,18 @@
         }
         .nav-links a:hover { color: #f0f0f0; }
         .nav-links a.active { color: #2196F3; font-weight: 600; }
+        .hamburger { display: none; flex-direction: column; cursor: pointer; }
+        .hamburger span { width: 25px; height: 3px; background: white; margin: 3px 0; transition: 0.3s; }
+        @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .nav-links { 
+                position: fixed; top: 60px; right: -100%; flex-direction: column;
+                background: rgba(102, 126, 234, 0.98); width: 250px; padding: 20px;
+                box-shadow: -2px 0 10px rgba(0,0,0,0.2); transition: 0.3s;
+                height: calc(100vh - 60px);
+            }
+            .nav-links.active { right: 0; }
+        }
         .main-content { padding: 20px; flex: 1; }
         .container { 
             max-width: 1400px; margin: 0 auto;
@@ -130,10 +142,14 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo"><i class="fas fa-file-excel"></i> Excel Converter</a>
+            <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">
+                <span></span><span></span><span></span>
+            </div>
             <div class="nav-links">
                 <a href="/sql-generator"><i class="fas fa-database"></i> SQL Generator</a>
                 <a href="/csv-extractor"><i class="fas fa-file-csv"></i> CSV Extractor</a>
                 <a href="/json-viewer" class="active"><i class="fas fa-code"></i> JSON Viewer</a>
+                <a href="/json-comparator"><i class="fas fa-code-compare"></i> JSON Comparator</a>
                 <a href="/xml-viewer"><i class="fas fa-file-code"></i> XML Viewer</a>
                 <a href="/word-processor"><i class="fas fa-file-word"></i> Word Processor</a>
             </div>

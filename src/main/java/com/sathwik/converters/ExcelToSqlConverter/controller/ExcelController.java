@@ -42,6 +42,11 @@ public class ExcelController {
         return "json-viewer";
     }
 
+    @GetMapping("/json-comparator")
+    public String jsonComparator() {
+        return "json-comparator";
+    }
+
     @GetMapping("/xml-viewer")
     public String xmlViewer() {
         return "xml-viewer";
