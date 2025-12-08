@@ -4,7 +4,6 @@ import com.sathwik.converters.ExcelToSqlConverter.service.ExcelService;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
@@ -26,7 +25,7 @@ public class ExcelServiceImpl implements ExcelService {
     @Override
     public String getInsertQuery(String tableName, MultipartFile file) {
         logger.info("Starting SQL insert query generation for table: {}", tableName);
-        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
 
             Sheet sheet = workbook.getSheetAt(0);
 
@@ -73,13 +72,13 @@ public class ExcelServiceImpl implements ExcelService {
 
             if (valueRows.isEmpty()) return "";
 
-            // 3. Build single INSERT statement
+            // 3. Build individual INSERT statements
             StringBuilder sql = new StringBuilder();
-            sql.append("INSERT INTO ").append(tableName)
-                    .append(" (").append(String.join(", ", headers)).append(")\n")
-                    .append("VALUES\n")
-                    .append(String.join(",\n", valueRows))
-                    .append(";");
+            String columnsPart = "INSERT INTO " + tableName + " (" + String.join(", ", headers) + ") VALUES ";
+            
+            for (String valueRow : valueRows) {
+                sql.append(columnsPart).append(valueRow).append(";\n\n");
+            }
 
             logger.info("Successfully generated SQL insert query with {} rows", valueRows.size());
             return sql.toString();
@@ -97,7 +96,7 @@ public class ExcelServiceImpl implements ExcelService {
         logger.info("Extracting CSV values from rows {} to {}", start, end);
         StringBuilder result = new StringBuilder();
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
 
             int count = 0;

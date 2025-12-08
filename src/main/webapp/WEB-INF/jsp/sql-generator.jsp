@@ -85,7 +85,7 @@
             white-space: pre-wrap; word-wrap: break-word; margin-top: 15px;
         }
         .copy-btn { 
-            margin-top: 15px; padding: 10px 20px; background: #667eea; color: white;
+            margin-bottom: 15px; padding: 10px 20px; background: #667eea; color: white;
             border: none; border-radius: 5px; cursor: pointer;
         }
     </style>
@@ -139,8 +139,8 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>SQL Insert Query</h2>
-            <div id="sqlOutput" class="result-content"></div>
             <button class="copy-btn" onclick="copyToClipboard('sqlOutput')">Copy to Clipboard</button>
+            <div id="sqlOutput" class="result-content"></div>
         </div>
     </div>
 
