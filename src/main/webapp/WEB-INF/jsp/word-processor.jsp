@@ -222,7 +222,7 @@
             let highlightedText = text;
             keywords.forEach(keyword => {
                 if (keyword.trim()) {
-                    const regex = new RegExp('(' + keyword.replace(/[.*+?^\${}()|[\]\\]/g, '\\\$&') + ')', 'gi');
+                    const regex = new RegExp('(' + keyword.replace(/[.*+?^\$\{\}()|[\]\\]/g, '\\\$&') + ')', 'gi');
                     highlightedText = highlightedText.replace(regex, '<span class="highlight">\$1</span>');
                 }
             });

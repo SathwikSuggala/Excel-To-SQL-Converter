@@ -122,6 +122,20 @@
             font-size: 0.85rem;
         }
         .reset-colors:hover { background: #5a6268; }
+        .search-container {
+            padding: 10px; background: #f8f9fa; border-bottom: 1px solid #ddd;
+            display: flex; gap: 10px; align-items: center;
+        }
+        .search-input {
+            padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;
+            font-size: 0.9rem; flex: 1;
+        }
+        .search-results {
+            font-size: 0.85rem; color: #666;
+        }
+        .highlight {
+            background: #ffeb3b; color: #000; padding: 1px 2px;
+        }
         @media (max-width: 768px) {
             .editor-container { grid-template-columns: 1fr; height: auto; }
             .toolbar { flex-direction: column; align-items: stretch; }
@@ -219,6 +233,10 @@
                         <span>XML Input</span>
                         <span id="inputStats">0 characters</span>
                     </div>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search in XML..." oninput="searchInXmlInput(this.value)">
+                        <span id="searchResultsInput" class="search-results"></span>
+                    </div>
                     <textarea id="xmlInput" class="editor" placeholder="Paste your XML here..."></textarea>
                     <div class="status-bar">
                         <span id="validationStatus">Ready</span>
@@ -234,6 +252,10 @@
                                 <span id="viewToggle">Tree View</span>
                             </button>
                         </div>
+                    </div>
+                    <div class="search-container">
+                        <input type="text" id="searchOutput" class="search-input" placeholder="Search in output..." oninput="searchInXmlOutput(this.value)">
+                        <span id="searchResultsOutput" class="search-results"></span>
                     </div>
                     <div id="output" class="output"></div>
                     <div class="status-bar">
@@ -279,6 +301,8 @@
 
                 const formatted = formatXmlString(input);
                 document.getElementById('output').innerHTML = syntaxHighlightXml(formatted);
+                // Clear stored original content to refresh it
+                window.originalXmlOutputContent = null;
                 document.getElementById('validationStatus').innerHTML = '<span class="valid"><i class="fas fa-check"></i> Valid XML</span>';
                 document.getElementById('outputInfo').textContent = 'Formatted successfully';
                 updateOutputStats(formatted);
@@ -593,12 +617,84 @@
             document.getElementById('xmlInput').value = '';
             document.getElementById('output').textContent = '';
             document.getElementById('xpathInput').value = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchOutput').value = '';
             document.getElementById('validationStatus').textContent = 'Ready';
             document.getElementById('outputInfo').textContent = 'No output';
+            document.getElementById('searchResultsInput').textContent = '';
+            document.getElementById('searchResultsOutput').textContent = '';
             updateStats();
             updateOutputStats('');
             xmlDoc = null;
             nodeIdCounter = 0;
+            window.originalXmlOutputContent = null;
+        }
+        
+        function searchInXmlInput(searchTerm) {
+            const editor = document.getElementById('xmlInput');
+            const content = editor.value;
+            const resultsSpan = document.getElementById('searchResultsInput');
+            
+            if (!searchTerm) {
+                resultsSpan.textContent = '';
+                return;
+            }
+            
+            const regex = new RegExp(searchTerm, 'gi');
+            const matches = content.match(regex);
+            const count = matches ? matches.length : 0;
+            
+            resultsSpan.textContent = count > 0 ? count + ' matches' : 'No matches';
+            
+            // Highlight first match
+            if (count > 0) {
+                const firstMatch = content.search(regex);
+                if (firstMatch !== -1) {
+                    editor.focus();
+                    editor.setSelectionRange(firstMatch, firstMatch + searchTerm.length);
+                }
+            }
+        }
+        
+        function searchInXmlOutput(searchTerm) {
+            const output = document.getElementById('output');
+            const resultsSpan = document.getElementById('searchResultsOutput');
+            
+            if (!searchTerm) {
+                resultsSpan.textContent = '';
+                // Restore original content without highlights
+                if (window.originalXmlOutputContent) {
+                    output.innerHTML = window.originalXmlOutputContent;
+                }
+                return;
+            }
+            
+            // Store original content if not already stored
+            if (!window.originalXmlOutputContent) {
+                window.originalXmlOutputContent = output.innerHTML;
+            }
+            
+            const content = output.textContent;
+            const regex = new RegExp(searchTerm, 'gi');
+            const matches = content.match(regex);
+            const count = matches ? matches.length : 0;
+            
+            resultsSpan.textContent = count > 0 ? count + ' matches' : 'No matches';
+            
+            // Highlight matches in the original content
+            if (count > 0) {
+                let highlightedContent = window.originalXmlOutputContent;
+                // Escape special regex characters in search term
+                const escapedTerm = searchTerm.replace(/[.*+?^\$\{\}()|[\]\\]/g, '\\$&');
+                // Highlight text content only, not HTML tags
+                highlightedContent = highlightedContent.replace(
+                    new RegExp('(>[^<]*?)(' + escapedTerm + ')([^<]*?<)', 'gi'),
+                    '$1<mark class="highlight">$2</mark>$3'
+                );
+                output.innerHTML = highlightedContent;
+            } else {
+                output.innerHTML = window.originalXmlOutputContent;
+            }
         }
 
         function copyToClipboard(elementId) {
@@ -712,21 +808,7 @@
         loadSavedXmlColors();
 
         // Sample XML for demo
-        document.getElementById('xmlInput').value = `<?xml version="1.0" encoding="UTF-8"?>
-<bookstore>
-    <book id="1" category="fiction">
-        <title>The Great Gatsby</title>
-        <author>F. Scott Fitzgerald</author>
-        <price currency="USD">12.99</price>
-        <published>1925</published>
-    </book>
-    <book id="2" category="science">
-        <title>A Brief History of Time</title>
-        <author>Stephen Hawking</author>
-        <price currency="USD">15.99</price>
-        <published>1988</published>
-    </book>
-</bookstore>`;
+        document.getElementById('xmlInput').value = '<?xml version="1.0" encoding="UTF-8"?>\n<bookstore>\n    <book id="1" category="fiction">\n        <title>The Great Gatsby</title>\n        <author>F. Scott Fitzgerald</author>\n        <price currency="USD">12.99</price>\n        <published>1925</published>\n    </book>\n    <book id="2" category="science">\n        <title>A Brief History of Time</title>\n        <author>Stephen Hawking</author>\n        <price currency="USD">15.99</price>\n        <published>1988</published>\n    </book>\n</bookstore>';
         updateStats();
         validateXml();
     </script>
